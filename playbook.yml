@@ -1,0 +1,10 @@
+---
+- name: Install git
+  hosts: all
+  become: true
+
+  tasks:
+  - name: Install git from repo
+    ansible.builtin.package:
+      name: git
+      state: present

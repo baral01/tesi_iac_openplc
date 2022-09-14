@@ -1,0 +1,12 @@
+.vagrant.d
+
+# ignore vagrant folder's contents
+vagrant/*
+# except these files
+!vagrant/Vagrantfile
+
+# ignore vagrant folder's contents
+vagrant-wsl/*
+# except these files
+!vagrant-wsl/Vagrantfile
+!vagrant-wsl/set_variables.sh

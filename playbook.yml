@@ -4,17 +4,60 @@
   become: true
 
   tasks:
-  - name: Install git from package repositories
+  # - name: Install git from package repositories
+  #   ansible.builtin.package:
+  #     name: git
+  #     state: present
+  - name: Install linux dependencies
     ansible.builtin.package:
-      name: git
+      name:
+        - build-essential
+        - pkg-config
+        - bison
+        - flex
+        - autoconf
+        - automake
+        - libtool
+        - make
+        - git
+        - python2.7
+        - sqlite3
+        - cmake
+        - curl
+        - python3
+        - python3-pip
       state: present
+  - name: Download pip2
+    ansible.builtin.get_url:
+      url: https://bootstrap.pypa.io/pip/2.7/get-pip.py
+      # destination directory must exist
+      dest: /home/vagrant/get-pip.py
+      mode: '0740'
+      force: yes
+  - name: Install pip2
+    ansible.builtin.shell: 
+      cmd: python2.7 /home/vagrant/get-pip.py
+      executable: /usr/bin/bash
+  - name: Install python2 dependencies
+    ansible.builtin.pip:
+      name:
+        - flask
+        - flask-login
+        - pyserial
+        - pymodbus
+      executable: pip2
+  - name: Install python3 dependencies
+    ansible.builtin.pip:
+      name:
+        - pymodbus
+      executable: pip3
   - name: Git checkout from github of OpenPLC
     ansible.builtin.git:
       repo: https://github.com/thiagoralves/OpenPLC_v3.git
       dest: /home/vagrant/OpenPLC_v3
   - name: Execute OpenPLC's installation script
     ansible.builtin.shell: 
-      cmd: ./install.sh linux
+      cmd: ./install.sh custom
       executable: /usr/bin/bash
       chdir: /home/vagrant/OpenPLC_v3
   - name: Unconditionally reboot the machine with all defaults

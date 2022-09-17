@@ -60,5 +60,14 @@
       cmd: ./install.sh custom
       executable: /usr/bin/bash
       chdir: /home/vagrant/OpenPLC_v3
+  - name: Copy the openplc.service file to the remote host
+    ansible.builtin.copy:
+      src: openplc.service
+      dest: /lib/systemd/system/
+  - name: Enable openplc service
+    ansible.builtin.systemd:
+      name: openplc.service
+      enabled: yes
+      daemon_reload: yes
   - name: Unconditionally reboot the machine with all defaults
     ansible.builtin.reboot:

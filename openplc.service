@@ -1,0 +1,16 @@
+# Refer to https://github.com/thiagoralves/OpenPLC_v3/blob/da2c9674b6ac866bd0bc4133d8023958db5c0be0/background_installer.sh#L118
+[Unit]
+Description=OpenPLC Service
+After=network.target
+
+[Service]
+Type=simple
+Restart=always
+RestartSec=1
+User=root
+Group=root
+WorkingDirectory=/home/vagrant/OpenPLC_v3/
+ExecStart=/home/vagrant/OpenPLC_v3/start_openplc.sh
+
+[Install]
+WantedBy=multi-user.target

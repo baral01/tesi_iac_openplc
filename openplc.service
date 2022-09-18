@@ -9,8 +9,8 @@ Restart=always
 RestartSec=1
 User=root
 Group=root
-WorkingDirectory=/home/vagrant/OpenPLC_v3/
-ExecStart=/home/vagrant/OpenPLC_v3/start_openplc.sh
+WorkingDirectory={{working_directory}}/OpenPLC_v3/
+ExecStart={{working_directory}}/OpenPLC_v3/start_openplc.sh
 
 [Install]
 WantedBy=multi-user.target

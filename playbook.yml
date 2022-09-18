@@ -2,6 +2,8 @@
 - name: Installation
   hosts: all
   become: true
+  vars:
+    - working_directory: /home/vagrant
 
   tasks:
   # - name: Install git from package repositories
@@ -31,12 +33,12 @@
     ansible.builtin.get_url:
       url: https://bootstrap.pypa.io/pip/2.7/get-pip.py
       # destination directory must exist
-      dest: /home/vagrant/get-pip.py
+      dest: '{{working_directory}}/get-pip.py'
       mode: '0740'
       force: yes
   - name: Install pip2
     ansible.builtin.shell: 
-      cmd: python2.7 /home/vagrant/get-pip.py
+      cmd: python2.7 '{{working_directory}}/get-pip.py'
       executable: /usr/bin/bash
   - name: Install python2 dependencies
     ansible.builtin.pip:
@@ -54,14 +56,14 @@
   - name: Git checkout from github of OpenPLC
     ansible.builtin.git:
       repo: https://github.com/thiagoralves/OpenPLC_v3.git
-      dest: /home/vagrant/OpenPLC_v3
+      dest: '{{working_directory}}/OpenPLC_v3'
   - name: Execute OpenPLC's installation script
     ansible.builtin.shell: 
       cmd: ./install.sh custom
       executable: /usr/bin/bash
-      chdir: /home/vagrant/OpenPLC_v3
-  - name: Copy the openplc.service file to the remote host
-    ansible.builtin.copy:
+      chdir: '{{working_directory}}/OpenPLC_v3'
+  - name: Template the openplc.service file to the remote host
+    ansible.builtin.template:
       src: openplc.service
       dest: /lib/systemd/system/
   - name: Enable openplc service

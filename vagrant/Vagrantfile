@@ -29,10 +29,12 @@ Vagrant.configure("2") do |config|
   # within the machine from a port on the host machine and only allow access
   # via 127.0.0.1 to disable public access
   # config.vm.network "forwarded_port", guest: 80, host: 8080, host_ip: "127.0.0.1"
+  config.vm.network "forwarded_port", guest: 8080, host: 8080, host_ip: "127.0.0.1"
 
   # Create a private network, which allows host-only access to the machine
   # using a specific IP.
   # config.vm.network "private_network", ip: "192.168.33.10"
+  config.vm.network "private_network", ip: "192.168.56.100"
 
   # Create a public network, which generally matched to bridged network.
   # Bridged networks make the machine appear as another physical device on
@@ -67,4 +69,17 @@ Vagrant.configure("2") do |config|
   #   apt-get update
   #   apt-get install -y apache2
   # SHELL
+  
+  # Update the package sources list to get the latest list of available packages in the repositories and 
+  # all the packages presently installed in the vm system to their latest versions. 
+  config.vm.provision "shell", inline: <<-SHELL
+     apt-get update
+     #apt-get update --allow-releaseinfo-change
+     apt-get upgrade -y
+  SHELL
+
+  # Run Ansible from the Vagrant Host
+  config.vm.provision "ansible" do |ansible|
+    ansible.playbook = "../playbook.yml"
+  end
 end

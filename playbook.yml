@@ -34,12 +34,15 @@
       url: https://bootstrap.pypa.io/pip/2.7/get-pip.py
       # destination directory must exist
       dest: '{{working_directory}}/get-pip.py'
-      mode: '0740'
       force: yes
   - name: Install pip2
     ansible.builtin.shell: 
       cmd: python2.7 '{{working_directory}}/get-pip.py'
       executable: /usr/bin/bash
+  - name: Remove file get-pip.py (pip2)
+    ansible.builtin.file:
+      path: '{{working_directory}}/get-pip.py'
+      state: absent
   - name: Install python2 dependencies
     ansible.builtin.pip:
       name:
@@ -66,10 +69,11 @@
     ansible.builtin.template:
       src: openplc.service
       dest: /lib/systemd/system/
-  - name: Enable openplc service
+  - name: Enable and start openplc service
     ansible.builtin.systemd:
       name: openplc.service
+      state: started
       enabled: yes
       daemon_reload: yes
-  - name: Unconditionally reboot the machine with all defaults
-    ansible.builtin.reboot:
+  #- name: Unconditionally reboot the machine with all defaults
+  #  ansible.builtin.reboot:

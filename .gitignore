@@ -12,6 +12,6 @@ vagrant-wsl/*
 !vagrant-wsl/set_variables.sh
 
 # ignore example folder's contents
-example/*
+testing/example/*
 # except these files
-!example/demo.st
+!testing/example/demo.st

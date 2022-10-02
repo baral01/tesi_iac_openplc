@@ -1,4 +1,5 @@
 .vagrant.d
+.vscode
 
 # ignore vagrant folder's contents
 vagrant/*
@@ -11,7 +12,14 @@ vagrant-wsl/*
 !vagrant-wsl/Vagrantfile
 !vagrant-wsl/set_variables.sh
 
-# ignore example folder's contents
-testing/example/*
-# except these files
+# ignore testing folder's contents
+testing/*
+# except this demo
 !testing/example/demo.st
+# except this folder
+!testing/modbus-testing
+
+# ignore modbus-testing folder's content
+testing/modbus-testing/*
+# except these files
+!testing/modbus-testing/updating_server.py

@@ -82,12 +82,9 @@ def updating_writer(server_context, cycle):
     values = slave_context.getValues(register, address, count=2)
     txt = f"current values: {str(values)}"
     log.debug(txt)
-    state = len(cycle) % 4
-    if state == 0:
-        cycle.clear()
-        cycle.append(1)
-    else:
-        cycle.append(1)
+    state = cycle[0]
+    # update cycle values (valid values: 0, 1, 2, 3, 4)
+    cycle[0] = state + 1 if state != 4 else 0
     # update values based on the current state
     if state == 0:
         # turn on the lamp
@@ -99,7 +96,10 @@ def updating_writer(server_context, cycle):
         # turn off the lamp
         values = [0, 1]
     elif state == 3:
-        # release all switches, lamp is off
+        # all switches on, lamp is off
+        values = [1, 1]
+    elif state == 4:
+        # all switches off, lamp is off
         values = [0, 0]
     txt = f"new values: {str(values)}"
     log.debug(txt)
@@ -158,7 +158,7 @@ async def main():
     server_info = ServerInfo()    
     server_info.setContext(context)
     server_info.setIdentity(identity)
-    cycle = []
+    cycle = [0]
     server_ref = asyncio.create_task(run_updating_server(server_info))
     while True:
         updating_writer(server_info.getContext(), cycle)

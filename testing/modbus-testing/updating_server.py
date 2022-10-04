@@ -27,7 +27,7 @@ class ServerInfo():
     def __init__(self):
         self.context = None
         self.identity = None
-        self.address = ("localhost", 5020)
+        self.address = ("", 5020)
     
     def getContext(self):
         return self.context

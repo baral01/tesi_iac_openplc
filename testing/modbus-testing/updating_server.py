@@ -75,9 +75,9 @@ def updating_writer(server_context, cycle):
     # co: 1, 5, 15
     # hr: 3, 6, 16, 22, 23
     register = 2
-    # only one slave, so id = 0
-    slave_id = 0x00
-    # first two inputs, so starting point is 0x00
+    # "In a MODBUS PDU each data is addressed from 0 to 65535"
+    # The inputs of interest are the first two, so starting point is 0x00
+    # zero_mode is set to False, which internally translates the final address to 1
     address = 0x00
     values = slave_context.getValues(register, address, count=2)
     txt = f"current values: {str(values)}"
@@ -133,10 +133,10 @@ async def main():
     # the starting address must be "0" and the "zero_mode" must be enabled.
 
     store = ModbusSlaveContext(
-        di=ModbusSequentialDataBlock(1, [17] * 100),
-        co=ModbusSequentialDataBlock(1, [17] * 100),
-        hr=ModbusSequentialDataBlock(1, [17] * 100),
-        ir=ModbusSequentialDataBlock(1, [17] * 100),
+        di=ModbusSequentialDataBlock(1, [17] * 8),
+        co=ModbusSequentialDataBlock(1, [17] * 8),
+        hr=ModbusSequentialDataBlock(1, [17] * 16),
+        ir=ModbusSequentialDataBlock(1, [17] * 16),
     )
     
     # create server context, single slave

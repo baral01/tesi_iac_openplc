@@ -34,30 +34,26 @@ from pymodbus.server import StartAsyncTcpServer
 from pymodbus.version import version
 
 class ServerInfo():
-    """Simple class to keep track of the server's info outside its creation method."""
     
-    def __init__(self):
-        self.context = None
-        self.identity = None
-        self.address = ("", 5020)
+    def __init__(self, context, identity, address):
+        """Simple class to keep track of the server's info outside its creation method.
+        
+        :param context: ModbusServerContext object
+        :param identity: ModbusDeviceIdentification object
+        :param address: (str, int) containing host's address and port
+        """
+        self.context = context
+        self.identity = identity
+        self.address = address
     
     def getContext(self):
         return self.context
-    
-    def setContext(self, context):
-        self.context = context
         
     def getIdentity(self):
         return self.identity
     
-    def setIdentity(self, identity):
-        self.identity = identity
-    
     def getAddress(self):
         return self.address
-    
-    def setAddress(self, address):
-        self.address = address
 
 
 # configure the service logging
@@ -207,10 +203,7 @@ async def main(args=None):
     )
     
     # save context and identity in a ServerInfo object
-    server_info = ServerInfo()    
-    server_info.setContext(context)
-    server_info.setIdentity(identity)
-    server_info.setAddress(args)
+    server_info = ServerInfo(context, identity, args)
     cycle = [0]
     server_ref = asyncio.create_task(run_updating_server(server_info))
     while True:

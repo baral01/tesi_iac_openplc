@@ -8,9 +8,21 @@ The purpose of this server is to expose two discrete inputs, whose values
 change periodically, to the runtime which will read them and then change
 the value of the output (the coil exposed) according to the behavior 
 written in the demo code.
+
+usage: updating_server.py [-h] [--host HOST] [--port PORT] [--log {critical,error,warning,info,debug}]
+
+Self-updating modbus server to test the on OpenPLC.
+
+options:
+  -h, --help            show this help message and exit
+  --host HOST           Host private network address for the server (avoid loopback address)
+  --port PORT           The port to use for the server (default 5020)
+  --log {critical,error,warning,info,debug}
+                        Logging level for the logger (default INFO)
 """
 import asyncio
 import logging
+import argparse
 
 from pymodbus.datastore import (
     ModbusSequentialDataBlock,
@@ -51,8 +63,7 @@ class ServerInfo():
 # configure the service logging
 FORMAT = '%(asctime)s %(module)-15s:%(lineno)-8s %(message)s'
 logging.basicConfig(format=FORMAT)
-log = logging.getLogger()
-log.setLevel(logging.DEBUG)
+logger = logging.getLogger()
 
  
 def updating_writer(server_context, cycle):
@@ -65,7 +76,7 @@ def updating_writer(server_context, cycle):
     :param server_context: master collection of slave contexts
     :param cycle: list saving the cycle state (single integer value)
     """
-    log.debug("updating the context")
+    logger.debug("updating the context")
     # extract the slave (it's a single slave context, so first position)
     slave_context = server_context[0]
     # Registers: Coils (co), Discrete Inputs (di), Input Registers (ir), Holding Registers (hr)
@@ -81,7 +92,7 @@ def updating_writer(server_context, cycle):
     address = 0x00
     values = slave_context.getValues(register, address, count=2)
     txt = f"current values: {str(values)}"
-    log.debug(txt)
+    logger.debug(txt)
     state = cycle[0]
     # update cycle values (valid values: 0, 1, 2, 3, 4)
     cycle[0] = state + 1 if state != 4 else 0
@@ -102,7 +113,7 @@ def updating_writer(server_context, cycle):
         # all switches off, lamp is off
         values = [0, 0]
     txt = f"new values: {str(values)}"
-    log.debug(txt)
+    logger.info(txt)
     slave_context.setValues(register, address, values)
 
 
@@ -112,14 +123,55 @@ async def run_updating_server(server_info):
     :param server_info: collection of server's info (context, identity, address)
     """
     
-    log.debug("Start server")
+    logger.info(f'Starting server "{server_info.getIdentity().ProductName}"  @{server_info.getAddress()[0]}:{server_info.getAddress()[1]}...')
     await StartAsyncTcpServer(
         context=server_info.getContext(), identity=server_info.getIdentity(), address=server_info.getAddress(), defer_start=False
     )
-    log.debug("Done")
+    logger.debug("Done")
 
 
-async def main():
+def get_commandline():
+    """Read command line arguments and set logger level.
+    
+    :returns: a tuple (host, port) containing the address read.
+    """
+    
+    parser = argparse.ArgumentParser(description="Self-updating modbus server to test the on OpenPLC.")
+    parser.add_argument(
+        "--host",
+        help="Host private network address for the server (avoid loopback address)",
+        type=str,
+        default=""
+    )
+    parser.add_argument(
+        "--port",
+        help="The port to use for the server (default 5020)",
+        type=int,
+        default=5020
+    )
+    parser.add_argument(
+        "--log",
+        choices=["critical", "error", "warning", "info", "debug"],
+        help="Logging level for the logger (default INFO)",
+        type=str,
+        default="INFO"
+    )    
+    args = parser.parse_args()
+    
+    logger.setLevel(args.log.upper())
+
+    return (args.host, args.port)
+
+
+async def main(args=None):
+    """Initialize the server and call the writer to update the server's context.
+    
+    :param args: (host, port) tuple containing the address and the port for the server.
+    """
+    
+    # retrieve address tuple (host, port)
+    if not args:
+        args = get_commandline()
 
     # initialize data store
     # Following the modbus application protocol specification section 4.4
@@ -158,6 +210,7 @@ async def main():
     server_info = ServerInfo()    
     server_info.setContext(context)
     server_info.setIdentity(identity)
+    server_info.setAddress(args)
     cycle = [0]
     server_ref = asyncio.create_task(run_updating_server(server_info))
     while True:

@@ -14,11 +14,54 @@ At the end of the provisioning, the virtual machine will have the OpenPLC runtim
 
 It's possible to choose where to install OpenPLC runtime inside the virtual machine by changing the value of the variable `working_directory` (from playbook.yml) with another path.  
 
-## Demo with modbus simulator
-It's possible to test if the runtime is working correctly by running the code in `example/demo.st` and seeing if it behaves as intended.  
+## Demo with a modbus server
+It's possible to test if the runtime is working correctly by running the code in `testing/example/demo.st` and seeing if it behaves as intended.  
 `demo.st` was generated using [OpenPLC Editor](https://openplcproject.com/docs/installing-openplc-editor/) and it describes a situation with two power buttons and a lamp: the lamp is initially off and it can be turned on by pressing the the first button and it can be turned off only by pressing the second button.  
 Since I'm running OpenPLC Runtime in a linux virtual machine, I'm lacking the necessary I/O points to test my code, but thankfully it's possible to expand them by attaching Modbus slave devices to the runtime.  
-I used [Modbus Simulator](https://github.com/riptideio/modbus-simulator) to emulate a Modbus slave device able to expose its inputs, coils and registers which OpenPLC Runtime can use to run the code written in `demo.st`. By changing the two input values (the power buttons) in the simulator, the code correctly changed the output value (the lamp). I was able to follow what was happening from the "Monitoring" tab of the dashboard.  
+We can use software to emulate a Modbus slave device able to expose its inputs, coils and registers which OpenPLC Runtime can use to run the code written in `demo.st`. By changing the two input values (the power buttons) in our emulated device, the code correctly changed the output value (the lamp). It's possible to follow what is happening from the "Monitoring" tab of the dashboard.  
+
+Software that can be used to emulate a Modbus server:  
+- `updating_server.py` implemented in this repository (can be found inside the `testing` folder), which uses Python 3.10 and [pymodbus v3](https://pypi.org/project/pymodbus/) **\*\*Working\*\***
+- [pyModSlave](https://pypi.org/project/pyModSlave/) which uses Python 3.7 and offers a GUI (last updated in January 2021) **\*\*Tested on Win10, Working\*\***
+- [ModRSsim2](https://sourceforge.net/projects/modrssim2/) GUI application for Windows (last updated in October 2019) **\*\*Not Tested\*\***
+- [Modbus Simulator](https://github.com/riptideio/modbus-simulator) which uses Python 2.7 (should also work with version <=3.6, after some working with the requirements) and offers a GUI (last updated in May 2019) **\*\*Tested on Win10, Working\*\***
+- [ModbusPal](https://sourceforge.net/projects/modbuspal/) which uses Java and offers a GUI (last updated in November 2020, status "abandoned") **\*\*Not Tested\*\***  
+
+### `updating_server.py` usage
+- Create a Python3.10 virtual environment using virtualenv  
+```
+python -m pip install virtualenv
+virtualenv -p path/to/python3.10/executable path/to/modbus-server
+cd path/to/modbus-server
+./Scripts/activate
+```  
+- Install requirements  (/testing/modbus-testing/requirements.txt)
+```
+python -m pip install -r requirements.txt
+```  
+- Run the server
+```
+python updating_server.py [-h] [--host HOST] [--port PORT] [--log {critical,error,warning,info,debug}]
+```  
+### pyModSlave usage
+- Create a Python3.7 virtual environment using virtualenv  
+```
+python -m pip install virtualenv
+virtualenv -p path/to/python3.10/executable path/to/pyModSlave
+cd path/to/pyModSlave
+./Scripts/activate
+```  
+- Install requirements
+```
+python -m pip install pyModSlave
+python -m pip install pyserial
+python -m pip install modbus-tk
+python -m pip install PyQt5
+```  
+- Run the server
+```
+python ./Lib/site-packages/pyModSlave/pyModSlave.py
+```  
 ### Modbus Simulator usage on Win10
 - Create a Python2.7 virtual environment using virtualenv  
 ```
@@ -74,8 +117,8 @@ cd modbus-simulator
 
 ### Run `demo.st`
 - Open OpenPLC Runtime dashboard (default credentials are `openplc`)
-- From the tab "Slave Devices", add the simulator by filling the fields
+- From the tab "Slave Devices", add the simulator by filling the fields (id is `0` for `updating_server.py`, `1` for the others)
 - From the tab "Programs", upload the `demo.st` to the runtime
 - Click "Start PLC"  
 
-From the "Monitoring" tab, it's possible to see the current values of the two discrete inputs and the coil. Value changes from the simulator will be reflected here, so by editing the inputs' values it's possible to see how the coil's value changes as specified by the demo code.
+From the "Monitoring" tab, it's possible to see the current values of the two discrete inputs and the coil. Value changes from the server will be reflected here, so by editing the inputs' values it's possible to see how the coil's value changes as specified by the demo code.

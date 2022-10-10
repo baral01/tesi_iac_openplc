@@ -27,7 +27,6 @@
 - name: Install pip2
   ansible.builtin.shell:
     cmd: python2.7 '{{working_directory}}/get-pip.py'
-    executable: /usr/bin/bash
 - name: Remove file get-pip.py (pip2)
   ansible.builtin.file:
     path: "{{working_directory}}/get-pip.py"
@@ -52,7 +51,6 @@
 - name: Execute OpenPLC's installation script
   ansible.builtin.shell:
     cmd: ./install.sh custom
-    executable: /usr/bin/bash
     chdir: "{{working_directory}}/OpenPLC_v3"
 - name: Template the openplc.service file to the remote host
   ansible.builtin.template:

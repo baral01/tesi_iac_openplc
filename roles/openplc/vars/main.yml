@@ -1,0 +1,3 @@
+---
+# vars to be used in the playbook
+working_directory: /home/vagrant

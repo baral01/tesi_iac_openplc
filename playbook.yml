@@ -3,6 +3,6 @@
 - name: OpenPLC_v3 Runtime deployment
   hosts: all
   become: true
-  
+
   roles:
     - openplc

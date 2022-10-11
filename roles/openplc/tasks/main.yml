@@ -22,14 +22,14 @@
   ansible.builtin.get_url:
     url: https://bootstrap.pypa.io/pip/2.7/get-pip.py
     # destination directory must exist
-    dest: "{{working_directory}}/get-pip.py"
+    dest: "{{ working_directory }}/get-pip.py"
     force: yes
 - name: Install pip2
   ansible.builtin.shell:
-    cmd: python2.7 '{{working_directory}}/get-pip.py'
+    cmd: python2.7 '{{ working_directory }}/get-pip.py'
 - name: Remove file get-pip.py (pip2)
   ansible.builtin.file:
-    path: "{{working_directory}}/get-pip.py"
+    path: "{{ working_directory }}/get-pip.py"
     state: absent
 - name: Install python2 dependencies
   ansible.builtin.pip:
@@ -47,11 +47,11 @@
 - name: Git checkout from github of OpenPLC
   ansible.builtin.git:
     repo: https://github.com/thiagoralves/OpenPLC_v3.git
-    dest: "{{working_directory}}/OpenPLC_v3"
+    dest: "{{ working_directory }}/OpenPLC_v3"
 - name: Execute OpenPLC's installation script
   ansible.builtin.shell:
     cmd: ./install.sh custom
-    chdir: "{{working_directory}}/OpenPLC_v3"
+    chdir: "{{ working_directory }}/OpenPLC_v3"
 - name: Template the openplc.service file to the remote host
   ansible.builtin.template:
     src: openplc.service

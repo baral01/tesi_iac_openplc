@@ -23,7 +23,8 @@
     url: https://bootstrap.pypa.io/pip/2.7/get-pip.py
     # destination directory must exist
     dest: "{{ working_directory }}/get-pip.py"
-    force: yes
+    mode: 0644
+    force: true
 - name: Install pip2
   ansible.builtin.shell:
     cmd: python2.7 '{{ working_directory }}/get-pip.py'
@@ -48,6 +49,7 @@
   ansible.builtin.git:
     repo: https://github.com/thiagoralves/OpenPLC_v3.git
     dest: "{{ working_directory }}/OpenPLC_v3"
+    version: da2c9674b6ac866bd0bc4133d8023958db5c0be0
 - name: Execute OpenPLC's installation script
   ansible.builtin.shell:
     cmd: ./install.sh custom
@@ -56,9 +58,10 @@
   ansible.builtin.template:
     src: openplc.service
     dest: /lib/systemd/system/
+    mode: 0644
 - name: Enable and start openplc service
   ansible.builtin.systemd:
     name: openplc.service
     state: started
-    enabled: yes
-    daemon_reload: yes
+    enabled: true
+    daemon_reload: true

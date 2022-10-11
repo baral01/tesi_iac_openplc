@@ -26,7 +26,7 @@
     mode: 0644
     force: true
 - name: Install pip2
-  ansible.builtin.shell:
+  ansible.builtin.command:
     cmd: python2.7 '{{ working_directory }}/get-pip.py'
 - name: Remove file get-pip.py (pip2)
   ansible.builtin.file:
@@ -50,7 +50,9 @@
     repo: https://github.com/thiagoralves/OpenPLC_v3.git
     dest: "{{ working_directory }}/OpenPLC_v3"
     version: da2c9674b6ac866bd0bc4133d8023958db5c0be0
-- name: Execute OpenPLC's installation script
+- name: Execute OpenPLC's installation script # noqa command-instead-of-shell
+# The installation script (and the other scripts it calls) uses pipelines and
+# other shell functionalities, so it's not possible to use the command module
   ansible.builtin.shell:
     cmd: ./install.sh custom
     chdir: "{{ working_directory }}/OpenPLC_v3"

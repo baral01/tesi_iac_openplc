@@ -18,6 +18,7 @@
       - python3
       - python3-pip
     state: present
+
 - name: Check if pip2 is already present
   ansible.builtin.command:
     cmd: pip2 --version
@@ -28,6 +29,7 @@
   register: pip2_check
   # Running this command doesn't change anything
   changed_when: false
+
 - name: Download pip2
   ansible.builtin.get_url:
     url: https://bootstrap.pypa.io/pip/2.7/get-pip.py
@@ -37,6 +39,7 @@
     force: true
   # skip if pip2 is already present
   when: pip2_check.rc != 0
+
 - name: Install pip2
   ansible.builtin.command:
     cmd: python2.7 '{{ working_directory }}/get-pip.py'
@@ -46,12 +49,14 @@
   changed_when: true
   # skip if pip2 is already present
   when: pip2_check.rc != 0
+
 - name: Remove file get-pip.py (pip2)
   ansible.builtin.file:
     path: "{{ working_directory }}/get-pip.py"
     state: absent
   # skip if pip2 is already present
   when: pip2_check.rc != 0
+
 - name: Install python2 dependencies
   ansible.builtin.pip:
     name:
@@ -60,11 +65,13 @@
       - pyserial
       - pymodbus
     executable: pip2
+
 - name: Install python3 dependencies
   ansible.builtin.pip:
     name:
       - pymodbus
     executable: pip3
+
 - name: Git checkout from github of OpenPLC
   ansible.builtin.git:
     repo: https://github.com/thiagoralves/OpenPLC_v3.git
@@ -81,17 +88,24 @@
   failed_when:
     - git_result.changed == false
     - '"Local modifications exist in the destination: " not in git_result.msg'
+
 - name: Execute OpenPLC's installation script # noqa command-instead-of-shell
-# The installation script (and the other scripts it calls) uses pipelines and
-# other shell functionalities, so it's not possible to use the command module
+  # The installation script (and the other scripts it calls) uses pipelines and
+  # other shell functionalities, so it's not possible to use the command module
   ansible.builtin.shell:
     cmd: ./install.sh custom
     chdir: "{{ working_directory }}/OpenPLC_v3"
+  # the execution of this task produces changes
+  changed_when: true
+  # skip if it has already been run once
+  when: git_result.changed == true
+
 - name: Template the openplc.service file to the remote host
   ansible.builtin.template:
     src: openplc.service
     dest: /lib/systemd/system/
     mode: 0644
+
 - name: Enable and start openplc service
   ansible.builtin.systemd:
     name: openplc.service

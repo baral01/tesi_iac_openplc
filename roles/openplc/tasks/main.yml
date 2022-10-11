@@ -18,6 +18,16 @@
       - python3
       - python3-pip
     state: present
+- name: Check if pip2 is already present
+  ansible.builtin.command:
+    cmd: pip2 --version
+  ignore_errors: true
+  # Both success and failure of this command are acceptable
+  failed_when: false
+  # Save result in pip2_check variable, its return code will be used later
+  register: pip2_check
+  # Running this command doesn't change anything
+  changed_when: false
 - name: Download pip2
   ansible.builtin.get_url:
     url: https://bootstrap.pypa.io/pip/2.7/get-pip.py
@@ -25,13 +35,23 @@
     dest: "{{ working_directory }}/get-pip.py"
     mode: 0644
     force: true
+  # skip if pip2 is already present
+  when: pip2_check.rc != 0
 - name: Install pip2
   ansible.builtin.command:
     cmd: python2.7 '{{ working_directory }}/get-pip.py'
+  # This command always produce a change:
+  # if run for the 1st time, it installs pip2
+  # if run after that, it removes pip3 from PATH
+  changed_when: true
+  # skip if pip2 is already present
+  when: pip2_check.rc != 0
 - name: Remove file get-pip.py (pip2)
   ansible.builtin.file:
     path: "{{ working_directory }}/get-pip.py"
     state: absent
+  # skip if pip2 is already present
+  when: pip2_check.rc != 0
 - name: Install python2 dependencies
   ansible.builtin.pip:
     name:

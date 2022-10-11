@@ -70,6 +70,17 @@
     repo: https://github.com/thiagoralves/OpenPLC_v3.git
     dest: "{{ working_directory }}/OpenPLC_v3"
     version: da2c9674b6ac866bd0bc4133d8023958db5c0be0
+    # don't discard any modified files in the working repository
+    force: false
+  register: git_result
+  # The task fails if both conditions are satisfied, otherwise it's good
+  # Failing if there's no change (changed == true should happen only after
+  # the first checkout, when the repository is created) except when
+  # it's due to local modifications existing in the dest folder
+  # (which means that OpenPLC has already been installed)
+  failed_when:
+    - git_result.changed == false
+    - '"Local modifications exist in the destination: " not in git_result.msg'
 - name: Execute OpenPLC's installation script # noqa command-instead-of-shell
 # The installation script (and the other scripts it calls) uses pipelines and
 # other shell functionalities, so it's not possible to use the command module

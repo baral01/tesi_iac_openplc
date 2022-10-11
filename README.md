@@ -1,3 +1,4 @@
+![ansible-lint](https://github.com/baral01/tesi_iac_openplc/actions/workflows/ansible-lint.yml/badge.svg?branch=master)
 # IaC OpenPLC
 Automates the deployment of [OpenPLC Runtime](https://github.com/thiagoralves/OpenPLC_v3) to a virtual environment using Vagrant and Ansible.
 

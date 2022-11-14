@@ -1,3 +1,7 @@
 ---
 # vars to be used in the playbook
+
+# specify the installation path
 working_directory: /home/vagrant
+# specify the version of OpenPLC based on the commit
+commit_sha: da2c9674b6ac866bd0bc4133d8023958db5c0be0

@@ -69,14 +69,14 @@
 - name: Install python3 dependencies
   ansible.builtin.pip:
     name:
-      - pymodbus
+      - pymodbus==2.5.3
     executable: pip3
 
 - name: Git checkout from github of OpenPLC
   ansible.builtin.git:
     repo: https://github.com/thiagoralves/OpenPLC_v3.git
     dest: "{{ working_directory }}/OpenPLC_v3"
-    version: da2c9674b6ac866bd0bc4133d8023958db5c0be0
+    version: "{{ commit_sha }}"
     # don't discard any modified files in the working repository
     force: false
   register: git_result
